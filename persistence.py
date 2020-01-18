@@ -1,6 +1,5 @@
 import sqlite3
 import atexit
-import os
 
 
 class Employee:
@@ -10,19 +9,24 @@ class Employee:
         self.salary = salary
         self.coffee_stand = coffee_stand
 
+    def __str__(self):
+        output = '(' + str(self.id) + ', ' + self.name + ', ' + str(self.salary) + ', ' + str(self.coffee_stand) + ')'
+        return output
+
 
 class _Employees:
     def __init__(self, conn):
         self._conn = conn
 
-    def find(self, employee):
+    def find(self, employee_id):
         cursor = self._conn.cursor()
         cursor.execute(
-            "SELECT name FROM Employees WHERE id=({})".format(employee.id))
+            "SELECT * FROM Employees WHERE id=({})".format(employee_id))
         return cursor.fetchone()
 
     def insert(self, employee):
-        self._conn.execute("INSERT INTO Employees VALUES (?, ?, ?, ?)", (employee.id, employee.name, employee.salary, employee.coffee_stand))
+        self._conn.execute("INSERT INTO Employees VALUES (?, ?, ?, ?)",
+                           (employee.id, employee.name, employee.salary, employee.coffee_stand))
 
     def find_all(self):
         c = self._conn.cursor()
@@ -38,18 +42,23 @@ class Supplier:
         self.name = name
         self.contact_information = contact_information
 
+    def __str__(self):
+        output = '(' + str(self.id) + ', ' + self.name + ', ' + self.contact_information + ')'
+        return output
+
 
 class _Suppliers:
     def __init__(self, conn):
         self._conn = conn
 
     def insert(self, supplier):
-        self._conn.execute("INSERT INTO Suppliers VALUES (?, ?, ?)", (supplier.id, supplier.name, supplier.contact_information))
+        self._conn.execute("INSERT INTO Suppliers VALUES (?, ?, ?)",
+                           (supplier.id, supplier.name, supplier.contact_information))
 
-    def find(self, supplier):
+    def find(self, supplier_id):
         cursor = self._conn.cursor()
         cursor.execute(
-            "SELECT name FROM Suppliers WHERE id=({})".format(supplier.id))
+            "SELECT * FROM Suppliers WHERE id=({})".format(supplier_id))
         return cursor.fetchone()
 
     def find_all(self):
@@ -67,6 +76,10 @@ class Product:
         self.price = price
         self.quantity = quantity
 
+    def __str__(self):
+        output = '(' + str(self.id) + ', ' + self.description + ', ' + str(self.price) + ', ' + str(self.quantity) + ')'
+        return output
+
 
 class _Products:
     def __init__(self, conn):
@@ -75,11 +88,12 @@ class _Products:
     def find(self, product_id):
         cursor = self._conn.cursor()
         cursor.execute(
-            "SELECT name FROM Products WHERE id=({})".format(product_id))
+            "SELECT description FROM Products WHERE id=({})".format(product_id))
         return cursor.fetchone()
 
     def insert(self, product):
-        self._conn.execute("INSERT INTO Products VALUES (?, ?, ?, ?)", (product.id, product.description, product.price, product.quantity))
+        self._conn.execute("INSERT INTO Products VALUES (?, ?, ?, ?)",
+                           (product.id, product.description, product.price, product.quantity))
 
     def update_products(self, product_id, amount):
         self._conn.execute("""
@@ -106,13 +120,18 @@ class Coffee_stand:
         self.location = location
         self.number_of_employees = number_of_employees
 
+    def __str__(self):
+        output = '(' + str(self.id) + ', ' + self.location + ', ' + str(self.number_of_employees) + ')'
+        return output
+
 
 class _Coffee_stands:
     def __init__(self, conn):
         self._conn = conn
 
     def insert(self, coffee_stand):
-        self._conn.execute("INSERT INTO Coffee_stands VALUES (?, ?, ?)", (coffee_stand.id, coffee_stand.location, coffee_stand.number_of_employees))
+        self._conn.execute("INSERT INTO Coffee_stands VALUES (?, ?, ?)",
+                           (coffee_stand.id, coffee_stand.location, coffee_stand.number_of_employees))
 
     def find_all(self):
         c = self._conn.cursor()
@@ -120,6 +139,16 @@ class _Coffee_stands:
             SELECT id, location, number_of_employees FROM Coffee_stands
         """).fetchall()
         return [Coffee_stand(*row) for row in all]
+
+
+    def find(self, id):
+        c = self._conn.cursor()
+        c.execute(
+            "SELECT location FROM Coffee_stands WHERE id=({})".format(id))
+        return c.fetchone()
+
+
+
 
 class Activity:
     def __init__(self, id, product_id, quantity, activator_id, date):
@@ -129,13 +158,26 @@ class Activity:
         self.activator_id = activator_id
         self.date = date
 
+    def __str__(self):
+        item_description = repo.products.find(self.product_id)[0]
+        if self.quantity > 0:
+            supplier_name = repo.suppliers.find(self.activator_id)[1]
+            output = '(' + str(self.date) + ', ' + item_description + ', ' + str(
+                self.quantity) + ', None, ' + supplier_name + ')'
+        else:
+            employee_name = repo.employees.find(self.activator_id)[1]
+            output = '(' + str(self.date) + ', ' + item_description + ', ' + str(
+                self.quantity) + ', ' + employee_name + ', None)'
+        return output
+
 
 class _Activities:
     def __init__(self, conn):
         self._conn = conn
 
     def insert_activity(self, activity):
-        self._conn.execute("INSERT INTO Activities VALUES (?, ?, ?, ?, ?)", (activity.id, activity.product_id, activity.quantity, activity.activator_id, activity.date))
+        self._conn.execute("INSERT INTO Activities VALUES (?, ?, ?, ?, ?)",
+                           (activity.id, activity.product_id, activity.quantity, activity.activator_id, activity.date))
 
     def find_all(self):
         c = self._conn.cursor()
@@ -143,6 +185,12 @@ class _Activities:
             SELECT id, product_id, quantity, activator_id, date FROM Activities
         """).fetchall()
         return [Activity(*row) for row in all]
+
+    def find(self, id):
+        c = self._conn.cursor()
+        c.execute(
+            "SELECT * FROM Activities WHERE id=({})".format(id))
+        return c.fetchone()
 
 
 class _Repository:
@@ -185,11 +233,19 @@ class _Repository:
                                                      date DATE NOT NULL 
                                                      ) """)
 
-
-
+    def get_total_sales(self, employee_id):
+        c = self._conn.cursor()
+        c.execute(
+            "SELECT * FROM Activities WHERE activator_id=({})".format(employee_id))
+        sales_record = c.fetchall()
+        amount = 0
+        for _activity in sales_record:
+            print(*_activity.quantity)
+            _quantity = _activity.quantity
+            price = self.products.find(_activity.product_id).price
+            amount += _quantity*price
+        return amount
 
 
 repo = _Repository()
 atexit.register(repo.close_db)
-
-
