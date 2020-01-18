@@ -58,18 +58,24 @@ class _Products:
     def __init__(self, conn):
         self._conn = conn
 
+    def find(self, product_id):
+        cursor = self._conn.cursor()
+        cursor.execute(
+            "SELECT name FROM Products WHERE id=({})".format(product_id))
+        return cursor.fetchone()
+
     def insert(self, product):
         self._conn.execute("INSERT INTO Products VALUES (?, ?, ?, ?)", (product.id, product.description, product.price, product.quantity))
 
-    def update_products(self, product, amount):
+    def update_products(self, product_id, amount):
         self._conn.execute("""
                        UPDATE Products SET quantity=(?) WHERE id=(?)
-                   """, [amount, product.id])
+                   """, [amount, product_id])
 
-    def get_product_quantity(self, product):
+    def get_product_quantity(self, product_id):
         cursor = self._conn.cursor()
         cursor.execute(
-            "SELECT quantity FROM Products WHERE id=({})".format(product.id))
+            "SELECT quantity FROM Products WHERE id=({})".format(product_id))
         return cursor.fetchone()[0]
 
 
@@ -111,6 +117,7 @@ class _Repository:
         self.suppliers = _Suppliers(self._conn)
         self.products = _Products(self._conn)
         self.coffee_stands = _Coffee_stands(self._conn)
+        self.activities = _Activities(self._conn)
 
     def close_db(self):
         self._conn.commit()
@@ -118,34 +125,33 @@ class _Repository:
 
     def create_tables(self):
         cursor = self._conn.cursor()
-        cursor.execute(""" CREATE TABLE Employees(id  INT PRIMARY KEY,
+        cursor.execute(""" CREATE TABLE Employees(  id INTEGER PRIMARY KEY,
                                                      name TEXT NOT NULL,
                                                      salary REAL NOT NULL,
                                                      coffee_stand INTEGER REFERENCES Coffee_stand(id)
                                                      ) """)
-        cursor.execute(""" CREATE TABLE Suppliers(id  INT PRIMARY KEY,
+        cursor.execute(""" CREATE TABLE Suppliers(  id INTEGER PRIMARY KEY,
                                                      name TEXT NOT NULL,
                                                      contact_information TEXT
                                                      ) """)
-        cursor.execute(""" CREATE TABLE Products(id  INT PRIMARY KEY,
+        cursor.execute(""" CREATE TABLE Products(   id INTEGER PRIMARY KEY,
                                                      description TEXT NOT NULL,
                                                      price REAL NOT NULL,
                                                      quantity INTEGER NOT NULL
                                                      ) """)
-        cursor.execute(""" CREATE TABLE Coffee_stands(id  INT PRIMARY KEY,
+        cursor.execute(""" CREATE TABLE Coffee_stands(id  INTEGER PRIMARY KEY,
                                                      location TEXT NOT NULL,
                                                      number_of_employees INTEGER 
                                                      ) """)
-        cursor.execute(""" CREATE TABLE Activities(product_id  INTEGER INTEGER REFERENCES Product(id),
+        cursor.execute(""" CREATE TABLE Activities( id INTEGER PRIMARY KEY,
+                                                    product_id  INTEGER INTEGER REFERENCES Product(id),
                                                      quantity INTEGER NOT NULL,
                                                      activator_id INTEGER NOT NULL,
                                                      date DATE NOT NULL 
                                                      ) """)
 
 
-DBExist = os.path.isfile("moncafe.db")
-if DBExist:
-    os.remove("moncafe.db")
+
 repo = _Repository()
 atexit.register(repo.close_db)
 

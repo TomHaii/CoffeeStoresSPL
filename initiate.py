@@ -1,12 +1,8 @@
-import sqlite3
-import os
 import sys
-from persistence import repo
 import persistence
+import os
 
-import atexit
-
-def insert_data(config):
+def insert_data(repo, config):
     for line in config:
         words = line.split(", ")
         print(words)
@@ -25,6 +21,10 @@ def insert_data(config):
 
 
 def main(argv):
+    DBExist = os.path.isfile("moncafe.db")
+    if DBExist:
+        os.remove("moncafe.db")
+    repo = persistence.repo
     config = open(argv[0], "r")  # TODO: Change file path to argument
     repo.create_tables()
     insert_data(config)
