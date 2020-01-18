@@ -85,11 +85,18 @@ class _Products:
     def __init__(self, conn):
         self._conn = conn
 
-    def find(self, product_id):
+    def find_description(self, product_id):
         cursor = self._conn.cursor()
         cursor.execute(
             "SELECT description FROM Products WHERE id=({})".format(product_id))
         return cursor.fetchone()
+
+    def find_product_price(self, product_id):
+        cursor = self._conn.cursor()
+        cursor.execute(
+            "SELECT price FROM Products WHERE id=({})".format(product_id))
+        return cursor.fetchone()
+
 
     def insert(self, product):
         self._conn.execute("INSERT INTO Products VALUES (?, ?, ?, ?)",
@@ -159,7 +166,7 @@ class Activity:
         self.date = date
 
     def __str__(self):
-        item_description = repo.products.find(self.product_id)[0]
+        item_description = repo.products.find_description(self.product_id)[0]
         if self.quantity > 0:
             supplier_name = repo.suppliers.find(self.activator_id)[1]
             output = '(' + str(self.date) + ', ' + item_description + ', ' + str(
@@ -240,10 +247,9 @@ class _Repository:
         sales_record = c.fetchall()
         amount = 0
         for _activity in sales_record:
-            print(*_activity.quantity)
-            _quantity = _activity.quantity
-            price = self.products.find(_activity.product_id).price
-            amount += _quantity*price
+            _quantity = int(abs(_activity[2]))
+            price = (self.products.find_product_price(_activity[1]))[0]
+            amount += _quantity * price
         return amount
 
 

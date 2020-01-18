@@ -1,7 +1,7 @@
 import sys
 import persistence
 from persistence import repo
-
+import printdb
 
 
 def perform_action(action_id, action):
@@ -29,6 +29,7 @@ def main(argv):
         words = line.split(", ")
         if perform_action(action_id, words):
             action_id += 1
+    printdb.print_tables()
 
 
 if __name__ == "__main__":

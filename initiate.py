@@ -7,7 +7,6 @@ import os
 def insert_data(config):
     for line in config:
         words = line.split(", ")
-        print(words)
         if words[0] == 'C':
             coffee_stand = persistence.Coffee_stand(words[1], words[2], words[3].strip('\n'))
             repo.coffee_stands.insert(coffee_stand)
