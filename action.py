@@ -23,6 +23,7 @@ def perform_action(action_id, action):
 
 def main(argv):
     action_id = 1
+    repo.connect()
     actions = open(argv[1], "r")  # TODO: Change file path to argument
     for line in actions:
         words = line.split(", ")

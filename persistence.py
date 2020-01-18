@@ -111,7 +111,7 @@ class _Activities:
 
 
 class _Repository:
-    def __init__(self):
+    def connect(self):
         self._conn = sqlite3.connect('moncafe.db')
         self.employees = _Employees(self._conn)
         self.suppliers = _Suppliers(self._conn)
@@ -152,6 +152,9 @@ class _Repository:
 
 
 
+
+
 repo = _Repository()
 atexit.register(repo.close_db)
+
 

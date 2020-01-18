@@ -1,8 +1,10 @@
 import sys
 import persistence
+
+from persistence import repo
 import os
 
-def insert_data(repo, config):
+def insert_data(config):
     for line in config:
         words = line.split(", ")
         print(words)
@@ -24,8 +26,8 @@ def main(argv):
     DBExist = os.path.isfile("moncafe.db")
     if DBExist:
         os.remove("moncafe.db")
-    repo = persistence.repo
     config = open(argv[0], "r")  # TODO: Change file path to argument
+    repo.connect()
     repo.create_tables()
     insert_data(config)
 
