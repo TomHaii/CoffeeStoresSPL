@@ -14,8 +14,8 @@ def perform_action(action_id, action):
         repo.products.update_products(product_id, curr_quantity + amount)
         activity = persistence.Activity(action_id, product_id, amount, activator, date)
         repo.activities.insert_activity(activity)
-        action_id += 1
         return True
+    return False
 
 
 def main(argv):
