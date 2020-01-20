@@ -20,19 +20,16 @@ def perform_action(action_id, action):
         print("illegal argument")
 
 
-
 def main(argv):
     action_id = 1
     repo.connect()
-    actions = open(argv[1], "r")  # TODO: Change file path to argument
+    actions = open(argv[1], "r")
     for line in actions:
         words = line.split(", ")
         if perform_action(action_id, words):
             action_id += 1
-    printdb.print_tables()
+    printdb.main()
 
 
 if __name__ == "__main__":
-   main(sys.argv)
-
-
+    main(sys.argv)

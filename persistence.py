@@ -30,10 +30,17 @@ class _Employees:
 
     def find_all(self):
         c = self._conn.cursor()
-        all = c.execute("""
-            SELECT id, name, salary, coffee_stand FROM Employees
+        all_employees = c.execute("""
+            SELECT id, name, salary, coffee_stand FROM Employees ORDER BY id
         """).fetchall()
-        return [Employee(*row) for row in all]
+        return [Employee(*row) for row in all_employees]
+
+    def find_all_by_name(self):
+        c = self._conn.cursor()
+        all_employees = c.execute("""
+                SELECT id, name, salary, coffee_stand FROM Employees ORDER BY name
+            """).fetchall()
+        return [Employee(*row) for row in all_employees]
 
 
 class Supplier:
@@ -63,10 +70,10 @@ class _Suppliers:
 
     def find_all(self):
         c = self._conn.cursor()
-        all = c.execute("""
-            SELECT id, name, contact_information FROM Suppliers
+        all_suppliers = c.execute("""
+            SELECT id, name, contact_information FROM Suppliers ORDER BY id
         """).fetchall()
-        return [Supplier(*row) for row in all]
+        return [Supplier(*row) for row in all_suppliers]
 
 
 class Product:
@@ -97,7 +104,6 @@ class _Products:
             "SELECT price FROM Products WHERE id=({})".format(product_id))
         return cursor.fetchone()
 
-
     def insert(self, product):
         self._conn.execute("INSERT INTO Products VALUES (?, ?, ?, ?)",
                            (product.id, product.description, product.price, product.quantity))
@@ -115,10 +121,10 @@ class _Products:
 
     def find_all(self):
         c = self._conn.cursor()
-        all = c.execute("""
-            SELECT id, description, price, quantity FROM Products
+        all_products = c.execute("""
+            SELECT id, description, price, quantity FROM Products ORDER BY id
         """).fetchall()
-        return [Product(*row) for row in all]
+        return [Product(*row) for row in all_products]
 
 
 class Coffee_stand:
@@ -142,19 +148,16 @@ class _Coffee_stands:
 
     def find_all(self):
         c = self._conn.cursor()
-        all = c.execute("""
-            SELECT id, location, number_of_employees FROM Coffee_stands
+        all_stands = c.execute("""
+            SELECT id, location, number_of_employees FROM Coffee_stands ORDER BY id
         """).fetchall()
-        return [Coffee_stand(*row) for row in all]
-
+        return [Coffee_stand(*row) for row in all_stands]
 
     def find(self, id):
         c = self._conn.cursor()
         c.execute(
             "SELECT location FROM Coffee_stands WHERE id=({})".format(id))
         return c.fetchone()
-
-
 
 
 class Activity:
@@ -188,16 +191,19 @@ class _Activities:
 
     def find_all(self):
         c = self._conn.cursor()
-        all = c.execute("""
-            SELECT id, product_id, quantity, activator_id, date FROM Activities
+        all_activities = c.execute("""
+            SELECT id, product_id, quantity, activator_id, date FROM Activities ORDER BY date
         """).fetchall()
-        return [Activity(*row) for row in all]
+        return [Activity(*row) for row in all_activities]
 
     def find(self, id):
         c = self._conn.cursor()
         c.execute(
             "SELECT * FROM Activities WHERE id=({})".format(id))
         return c.fetchone()
+
+    def isEmpty(self):
+        c = self._conn.cursor()
 
 
 class _Repository:

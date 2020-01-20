@@ -33,7 +33,7 @@ def print_coffee_stands_table():
 
 def print_employees_report():
     print('Employees report')
-    for employee in repo.employees.find_all():
+    for employee in repo.employees.find_all_by_name():
         name = employee.name
         salary = str(employee.salary)
         location = repo.coffee_stands.find(employee.coffee_stand)[0]
