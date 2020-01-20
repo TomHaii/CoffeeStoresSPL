@@ -10,7 +10,7 @@ class Employee:
         self.coffee_stand = coffee_stand
 
     def __str__(self):
-        output = '(' + str(self.id) + ', ' + self.name + ', ' + str(self.salary) + ', ' + str(self.coffee_stand) + ')'
+        output = str(self.id) + ', ' + self.name + ', ' + str(self.salary) + ', ' + str(self.coffee_stand)
         return output
 
 
@@ -33,7 +33,7 @@ class _Employees:
         all_employees = c.execute("""
             SELECT id, name, salary, coffee_stand FROM Employees ORDER BY id
         """).fetchall()
-        return [Employee(*row) for row in all_employees]
+        return all_employees
 
     def find_all_by_name(self):
         c = self._conn.cursor()
@@ -50,7 +50,7 @@ class Supplier:
         self.contact_information = contact_information
 
     def __str__(self):
-        output = '(' + str(self.id) + ', ' + self.name + ', ' + self.contact_information + ')'
+        output = str(self.id) + ', ' + self.name + ', ' + self.contact_information
         return output
 
 
@@ -73,7 +73,7 @@ class _Suppliers:
         all_suppliers = c.execute("""
             SELECT id, name, contact_information FROM Suppliers ORDER BY id
         """).fetchall()
-        return [Supplier(*row) for row in all_suppliers]
+        return all_suppliers
 
 
 class Product:
@@ -84,7 +84,7 @@ class Product:
         self.quantity = quantity
 
     def __str__(self):
-        output = '(' + str(self.id) + ', ' + self.description + ', ' + str(self.price) + ', ' + str(self.quantity) + ')'
+        output = str(self.id) + ', ' + self.description + ', ' + str(self.price) + ', ' + str(self.quantity)
         return output
 
 
@@ -124,7 +124,7 @@ class _Products:
         all_products = c.execute("""
             SELECT id, description, price, quantity FROM Products ORDER BY id
         """).fetchall()
-        return [Product(*row) for row in all_products]
+        return all_products
 
 
 class Coffee_stand:
@@ -134,7 +134,7 @@ class Coffee_stand:
         self.number_of_employees = number_of_employees
 
     def __str__(self):
-        output = '(' + str(self.id) + ', ' + self.location + ', ' + str(self.number_of_employees) + ')'
+        output = str(self.id) + ', ' + self.location + ', ' + str(self.number_of_employees)
         return output
 
 
@@ -151,7 +151,7 @@ class _Coffee_stands:
         all_stands = c.execute("""
             SELECT id, location, number_of_employees FROM Coffee_stands ORDER BY id
         """).fetchall()
-        return [Coffee_stand(*row) for row in all_stands]
+        return all_stands
 
     def find(self, id):
         c = self._conn.cursor()
@@ -172,12 +172,12 @@ class Activity:
         item_description = repo.products.find_description(self.product_id)[0]
         if self.quantity > 0:
             supplier_name = repo.suppliers.find(self.activator_id)[1]
-            output = '(' + str(self.date) + ', ' + item_description + ', ' + str(
-                self.quantity) + ', None, ' + supplier_name + ')'
+            output = str(self.date) + ', ' + item_description + ', ' + str(
+                self.quantity) + ', None, ' + supplier_name
         else:
             employee_name = repo.employees.find(self.activator_id)[1]
-            output = '(' + str(self.date) + ', ' + item_description + ', ' + str(
-                self.quantity) + ', ' + employee_name + ', None)'
+            output =  str(self.date) + ', ' + item_description + ', ' + str(
+                self.quantity) + ', ' + employee_name + ', None'
         return output
 
 
@@ -192,9 +192,9 @@ class _Activities:
     def find_all(self):
         c = self._conn.cursor()
         all_activities = c.execute("""
-            SELECT id, product_id, quantity, activator_id, date FROM Activities ORDER BY date
+            SELECT product_id, quantity, activator_id, date FROM Activities ORDER BY date
         """).fetchall()
-        return [Activity(*row) for row in all_activities]
+        return all_activities
 
     def find(self, id):
         c = self._conn.cursor()
