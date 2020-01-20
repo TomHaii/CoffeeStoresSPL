@@ -9,20 +9,10 @@ class Employee:
         self.salary = salary
         self.coffee_stand = coffee_stand
 
-    def __str__(self):
-        output = str(self.id) + ', ' + self.name + ', ' + str(self.salary) + ', ' + str(self.coffee_stand)
-        return output
-
 
 class _Employees:
     def __init__(self, conn):
         self._conn = conn
-
-    def find(self, employee_id):
-        cursor = self._conn.cursor()
-        cursor.execute(
-            "SELECT * FROM Employees WHERE id=({})".format(employee_id))
-        return cursor.fetchone()
 
     def insert(self, employee):
         self._conn.execute("INSERT INTO Employees VALUES (?, ?, ?, ?)",
@@ -49,10 +39,6 @@ class Supplier:
         self.name = name
         self.contact_information = contact_information
 
-    def __str__(self):
-        output = str(self.id) + ', ' + self.name + ', ' + self.contact_information
-        return output
-
 
 class _Suppliers:
     def __init__(self, conn):
@@ -61,12 +47,6 @@ class _Suppliers:
     def insert(self, supplier):
         self._conn.execute("INSERT INTO Suppliers VALUES (?, ?, ?)",
                            (supplier.id, supplier.name, supplier.contact_information))
-
-    def find(self, supplier_id):
-        cursor = self._conn.cursor()
-        cursor.execute(
-            "SELECT * FROM Suppliers WHERE id=({})".format(supplier_id))
-        return cursor.fetchone()
 
     def find_all(self):
         c = self._conn.cursor()
@@ -83,10 +63,6 @@ class Product:
         self.price = price
         self.quantity = quantity
 
-    def __str__(self):
-        output = str(self.id) + ', ' + self.description + ', ' + str(self.price) + ', ' + str(self.quantity)
-        return output
-
 
 class _Products:
     def __init__(self, conn):
@@ -96,12 +72,6 @@ class _Products:
         cursor = self._conn.cursor()
         cursor.execute(
             "SELECT description FROM Products WHERE id=({})".format(product_id))
-        return cursor.fetchone()
-
-    def find_product_price(self, product_id):
-        cursor = self._conn.cursor()
-        cursor.execute(
-            "SELECT price FROM Products WHERE id=({})".format(product_id))
         return cursor.fetchone()
 
     def insert(self, product):
@@ -133,10 +103,6 @@ class Coffee_stand:
         self.location = location
         self.number_of_employees = number_of_employees
 
-    def __str__(self):
-        output = str(self.id) + ', ' + self.location + ', ' + str(self.number_of_employees)
-        return output
-
 
 class _Coffee_stands:
     def __init__(self, conn):
@@ -157,7 +123,7 @@ class _Coffee_stands:
         c = self._conn.cursor()
         c.execute(
             "SELECT location FROM Coffee_stands WHERE id=({})".format(id))
-        return c.fetchone()
+        return c.fetchone()[0]
 
 
 class Activity:
@@ -166,18 +132,6 @@ class Activity:
         self.quantity = quantity
         self.activator_id = activator_id
         self.date = date
-
-    def __str__(self):
-        item_description = repo.products.find_description(self.product_id)[0]
-        if self.quantity > 0:
-            supplier_name = repo.suppliers.find(self.activator_id)[1]
-            output = str(self.date) + ', ' + item_description + ', ' + str(
-                self.quantity) + ', None, ' + supplier_name
-        else:
-            employee_name = repo.employees.find(self.activator_id)[1]
-            output = str(self.date) + ', ' + item_description + ', ' + str(
-                self.quantity) + ', ' + employee_name + ', None'
-        return output
 
 
 class _Activities:
@@ -259,8 +213,6 @@ class _Repository:
             ORDER BY Activities.date
         """).fetchall()
         return report
-
-
 
 
 repo = _Repository()
