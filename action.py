@@ -16,8 +16,6 @@ def perform_action(action_id, action):
         repo.activities.insert_activity(activity)
         action_id += 1
         return True
-    else:
-        print("illegal argument")
 
 
 def main(argv):

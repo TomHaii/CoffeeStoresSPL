@@ -4,6 +4,7 @@ import persistence
 from persistence import repo
 import os
 
+
 def insert_data(config):
     for line in config:
         words = line.split(", ")
@@ -25,14 +26,11 @@ def main(argv):
     DBExist = os.path.isfile("moncafe.db")
     if DBExist:
         os.remove("moncafe.db")
-    config = open(argv[0], "r")  # TODO: Change file path to argument
+    config = open(argv[0], "r")
     repo.connect()
     repo.create_tables()
     insert_data(config)
 
 
-
 if __name__ == "__main__":
-   main(sys.argv[1:])
-
-
+    main(sys.argv[1:])
