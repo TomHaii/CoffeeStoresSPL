@@ -54,7 +54,9 @@ def print_tables():
     print_employees_table()
     print_products_table()
     print_suppliers_table()
+    print("")
     print_employees_report()
+    print("")
     print_activities_report()
 
 

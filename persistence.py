@@ -252,13 +252,15 @@ class _Repository:
     def get_report(self):
         c = self._conn.cursor()
         report = c.execute("""
-            SELECT date, description, Activities.quantity, name, _name FROM Activities
-            LEFT JOIN Products description on id = Products.id
-            LEFT JOIN Employees name on activator_id  = Employees.id
-            LEFT JOIN Suppliers _name on activator_id  = Suppliers.id
-            ORDER BY date
+            SELECT date, Products.description, Activities.quantity, Employees.name, Suppliers.name FROM Activities
+            LEFT JOIN Products on Activities.product_id = Products.id
+            LEFT JOIN Employees on Activities.activator_id  = Employees.id
+            LEFT JOIN Suppliers on Activities.activator_id  = Suppliers.id
+            ORDER BY Activities.date
         """).fetchall()
         return report
+
+
 
 
 repo = _Repository()
