@@ -35,10 +35,17 @@ def print_employees_report():
     print('Employees report')
     for employee in repo.employees.find_all_by_name():
         name = employee.name
-        salary = str(employee.salary)
+        salary = employee.salary
         location = repo.coffee_stands.find(employee.coffee_stand)[0]
-        total_sales = str(repo.get_total_sales(employee.id))
-        print(name + ' ' + salary + ' ' + location + ' ' + total_sales)
+        total_sales = repo.get_total_sales(employee.id)
+        output = (name, salary, location, total_sales)
+        print(output)
+
+
+def print_activities_report():
+    print('Activities')
+    for activity in repo.get_report():
+        print(activity)
 
 
 def print_tables():
@@ -48,6 +55,7 @@ def print_tables():
     print_products_table()
     print_suppliers_table()
     print_employees_report()
+    print_activities_report()
 
 
 def main():

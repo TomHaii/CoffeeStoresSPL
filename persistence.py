@@ -161,8 +161,7 @@ class _Coffee_stands:
 
 
 class Activity:
-    def __init__(self, id, product_id, quantity, activator_id, date):
-        self.id = id
+    def __init__(self, product_id, quantity, activator_id, date):
         self.product_id = product_id
         self.quantity = quantity
         self.activator_id = activator_id
@@ -176,7 +175,7 @@ class Activity:
                 self.quantity) + ', None, ' + supplier_name
         else:
             employee_name = repo.employees.find(self.activator_id)[1]
-            output =  str(self.date) + ', ' + item_description + ', ' + str(
+            output = str(self.date) + ', ' + item_description + ', ' + str(
                 self.quantity) + ', ' + employee_name + ', None'
         return output
 
@@ -186,8 +185,8 @@ class _Activities:
         self._conn = conn
 
     def insert_activity(self, activity):
-        self._conn.execute("INSERT INTO Activities VALUES (?, ?, ?, ?, ?)",
-                           (activity.id, activity.product_id, activity.quantity, activity.activator_id, activity.date))
+        self._conn.execute("INSERT INTO Activities VALUES (?, ?, ?, ?)",
+                           (activity.product_id, activity.quantity, activity.activator_id, activity.date))
 
     def find_all(self):
         c = self._conn.cursor()
@@ -195,15 +194,6 @@ class _Activities:
             SELECT product_id, quantity, activator_id, date FROM Activities ORDER BY date
         """).fetchall()
         return all_activities
-
-    def find(self, id):
-        c = self._conn.cursor()
-        c.execute(
-            "SELECT * FROM Activities WHERE id=({})".format(id))
-        return c.fetchone()
-
-    def isEmpty(self):
-        c = self._conn.cursor()
 
 
 class _Repository:
@@ -239,8 +229,7 @@ class _Repository:
                                                      location TEXT NOT NULL,
                                                      number_of_employees INTEGER 
                                                      ) """)
-        cursor.execute(""" CREATE TABLE Activities( id INTEGER PRIMARY KEY,
-                                                    product_id  INTEGER INTEGER REFERENCES Product(id),
+        cursor.execute(""" CREATE TABLE Activities(  product_id  INTEGER INTEGER REFERENCES Product(id),
                                                      quantity INTEGER NOT NULL,
                                                      activator_id INTEGER NOT NULL,
                                                      date DATE NOT NULL 
@@ -249,14 +238,27 @@ class _Repository:
     def get_total_sales(self, employee_id):
         c = self._conn.cursor()
         c.execute(
-            "SELECT * FROM Activities WHERE activator_id=({})".format(employee_id))
+            "SELECT Activities.quantity, Products.price FROM Activities"
+            " INNER JOIN Products ON Products.id = Activities.product_id"
+            " WHERE activator_id=({})".format(employee_id))
         sales_record = c.fetchall()
         amount = 0
-        for _activity in sales_record:
-            _quantity = int(abs(_activity[2]))
-            price = (self.products.find_product_price(_activity[1]))[0]
+        for r in sales_record:
+            _quantity = int(abs(r[0]))
+            price = r[1]
             amount += _quantity * price
         return amount
+
+    def get_report(self):
+        c = self._conn.cursor()
+        report = c.execute("""
+            SELECT date, description, Activities.quantity, name, _name FROM Activities
+            LEFT JOIN Products description on id = Products.id
+            LEFT JOIN Employees name on activator_id  = Employees.id
+            LEFT JOIN Suppliers _name on activator_id  = Suppliers.id
+            ORDER BY date
+        """).fetchall()
+        return report
 
 
 repo = _Repository()
