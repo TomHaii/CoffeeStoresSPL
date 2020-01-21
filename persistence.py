@@ -9,6 +9,10 @@ class Employee:
         self.salary = salary
         self.coffee_stand = coffee_stand
 
+    def to_tuple(self):
+        output = (self.id, self.name, self.salary, self.coffee_stand)
+        return output
+
 
 class _Employees:
     def __init__(self, conn):
@@ -23,7 +27,7 @@ class _Employees:
         all_employees = c.execute("""
             SELECT id, name, salary, coffee_stand FROM Employees ORDER BY id
         """).fetchall()
-        return all_employees
+        return [Employee(*row) for row in all_employees]
 
     def find_all_by_name(self):
         c = self._conn.cursor()
@@ -39,6 +43,10 @@ class Supplier:
         self.name = name
         self.contact_information = contact_information
 
+    def to_tuple(self):
+        output = (self.id, self.name, self.contact_information)
+        return output
+
 
 class _Suppliers:
     def __init__(self, conn):
@@ -53,7 +61,7 @@ class _Suppliers:
         all_suppliers = c.execute("""
             SELECT id, name, contact_information FROM Suppliers ORDER BY id
         """).fetchall()
-        return all_suppliers
+        return [Supplier(*row) for row in all_suppliers]
 
 
 class Product:
@@ -62,6 +70,10 @@ class Product:
         self.description = description
         self.price = price
         self.quantity = quantity
+
+    def to_tuple(self):
+        output = (self.id, self.description, self.price, self.quantity)
+        return output
 
 
 class _Products:
@@ -94,7 +106,7 @@ class _Products:
         all_products = c.execute("""
             SELECT id, description, price, quantity FROM Products ORDER BY id
         """).fetchall()
-        return all_products
+        return [Product(*row) for row in all_products]
 
 
 class Coffee_stand:
@@ -102,6 +114,10 @@ class Coffee_stand:
         self.id = id
         self.location = location
         self.number_of_employees = number_of_employees
+
+    def to_tuple(self):
+        output = (self.id, self.location, self.number_of_employees)
+        return output
 
 
 class _Coffee_stands:
@@ -117,7 +133,7 @@ class _Coffee_stands:
         all_stands = c.execute("""
             SELECT id, location, number_of_employees FROM Coffee_stands ORDER BY id
         """).fetchall()
-        return all_stands
+        return [Coffee_stand(*row) for row in all_stands]
 
     def find(self, id):
         c = self._conn.cursor()
@@ -133,6 +149,10 @@ class Activity:
         self.activator_id = activator_id
         self.date = date
 
+    def to_tuple(self):
+        output = (self.product_id, self.quantity, self.activator_id, self.date)
+        return output
+
 
 class _Activities:
     def __init__(self, conn):
@@ -147,7 +167,19 @@ class _Activities:
         all_activities = c.execute("""
             SELECT product_id, quantity, activator_id, date FROM Activities ORDER BY date
         """).fetchall()
-        return all_activities
+        return [Activity(*row) for row in all_activities]
+
+
+class Employee_Report:
+    def __init__(self, _id, name, salary, location):
+        self.name = name
+        self.salary = salary
+        self.location = location
+        self.total_sales = repo.get_total_sales(_id)
+
+    def to_tuple(self):
+        output = (self.name, self.salary, self.location, self.total_sales)
+        return output
 
 
 class _Repository:
@@ -203,7 +235,7 @@ class _Repository:
             amount += _quantity * price
         return amount
 
-    def get_report(self):
+    def get_activities_report(self):
         c = self._conn.cursor()
         report = c.execute("""
             SELECT date, Products.description, Activities.quantity, Employees.name, Suppliers.name FROM Activities
@@ -213,6 +245,14 @@ class _Repository:
             ORDER BY Activities.date
         """).fetchall()
         return report
+
+    def get_employees_report(self):
+        c = self._conn.cursor()
+        reports = c.execute("""
+                SELECT Employees.id, Employees.name, Employees.salary, Coffee_stands.location FROM Employees
+                LEFT JOIN Coffee_stands on Coffee_stands.id = Employees.coffee_stand
+                ORDER BY Employees.name""").fetchall()
+        return [Employee_Report(*row) for row in reports]
 
 
 repo = _Repository()
