@@ -38,8 +38,7 @@ def print_employees_report():
         salary = employee.salary
         location = repo.coffee_stands.find(employee.coffee_stand)
         total_sales = repo.get_total_sales(employee.id)
-        output = (name, salary, location, total_sales)
-        print(*output)
+        print(name + " " + str(salary) + " " + location + " " + str(total_sales))
 
 
 def print_activities_report():
